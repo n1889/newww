@@ -19,7 +19,9 @@ beforeEach(function(done) {
   User = new (require("../../models/user"))({
     host: "https://user.com"
   });
-  spy = sinon.spy(function(a, b, c) {});
+  spy = sinon.spy(function(a, cb) {
+    cb();
+  });
   User.getMailchimp = function() {
     return {
       lists: {
@@ -582,12 +584,15 @@ describe("User", function() {
           resource: {
             npmweekly: "on"
           }
-        }, function(er, user) {
-          expect(er).to.not.exist();
+        }).then(function(user) {
+          return Promise.all(user.pending);
+        }).then(function(pending) {
           // userMock.done();
           expect(spy.calledWith(params)).to.be.true();
           done();
-        });
+        }).catch(function(err) {
+          done(err);
+        })
       });
 
       it('does not add the user to the mailing list when unchecked', function(done) {

@@ -35,7 +35,9 @@ customer.getBillingInfo = function(request, reply) {
 
       request.customer.getLicensesFromSubscriptions(subscriptions, function(err, licenses) {
 
-        var subs = subscriptions.map(function(sub) {
+        var subs = subscriptions.filter(function(sub) {
+          return sub.status === "active";
+        }).map(function(sub) {
           sub.license = licenses.filter(function(license) {
             return license.id === sub.license_id;
           })[0];
